@@ -33,12 +33,7 @@ void setup() {
   bird2 = loadImage("bird2.png");
   bird3 = loadImage("bird3.png");
 
-  for (int i = 0; i < 3; i++) {
-    pipeXPos[i] = i*300 + 800;
-  }
-  for (int i = 0; i < 3; i++) {
-    pipeHeight[i] = i*100 + 100;
-  }
+  init();
 
   imageMode(CENTER);
   textAlign(CENTER);
@@ -76,6 +71,10 @@ void mainMenu() {
 void instructions() {
   background(#000000);
   // Add "How to play"
+  fill(#FFFFFF);
+  rect(340,585,120,30);
+  fill(#000000);
+  text("Return to Main Menu",400,600);
 }
 
 void game() {
@@ -86,11 +85,11 @@ void game() {
   spawnNewPipes();
   checkBirdCollision();
   score();
+  drawScore();
 
   // Test for changing the rotation angle of the bird based on velocity/acceleration
   //translate(400,400);
   //rotate(radians(45));
-  //rect(0,0,50,50);
 }
 
 void gameover() {
@@ -104,6 +103,22 @@ void gameover() {
   fill(#000000);
   text("Play Again",400,400);
   text("Return to Main Menu",400,500);
+}
+
+void init() {
+  playerScore = 0;
+  BirdPosition.y = 400;
+  
+  resetPipes();
+}
+
+void resetPipes() {
+  for (int i = 0; i < 3; i++) {
+    pipeXPos[i] = i*300 + 800;
+  }
+  for (int i = 0; i < 3; i++) {
+    pipeHeight[i] = i*100 + 100;
+  }
 }
 
 void drawBird() {
@@ -127,12 +142,16 @@ void drawBird() {
   }
 }
 
-void moveBird() {
-  BirdPosition.add(BirdVelocity);
+void moveBird() {  
   BirdVelocity.add(BirdAcceleration);
+  BirdPosition.add(BirdVelocity);
+  //BirdPosition.add(BirdVelocity);
+  //BirdVelocity.add(BirdAcceleration);
   if (spacePressed) {
-    BirdVelocity.y = -10;
+    BirdVelocity.y = -12;
+    //BirdVelocity.y = -10;
     BirdAcceleration.y = 2.45;
+    //BirdAcceleration.y = 9.8; 
   }
   if (BirdPosition.y + birdHeight/2 > 800) {
     BirdVelocity.y = 0;
@@ -170,16 +189,21 @@ void checkBirdCollision() {
     if (abs(pipeXPos[i]-BirdPosition.x+birdWidth/2) < birdWidth && 
       (BirdPosition.y + birdHeight/2 > height-pipeHeight[i] || BirdPosition.y - birdHeight/2 < height-pipeHeight[i]-pipeGap)) {
       gameState = 3;                                                       // ^ Change to + for better detection
+      init();
     }
   }
 }
 
 void score() {
   for(int i = 0; i < 3; i++) {
-    //if(BirdPosition.x - birdWidth/2 > pipeXPos[i] + pipeWidth) {
-      // playerScore++;
-    //}
+    if(BirdPosition.x - birdWidth >= pipeXPos[i]+pipeWidth) {
+      playerScore++;
+    }
   }
+}
+
+void drawScore() {
+  println(playerScore);
 }
 
 void keyPressed() {
@@ -195,13 +219,18 @@ void keyReleased() {
 }
 
 void mousePressed() {
-  if (gameState == 0 && mouseX > 350 && mouseX < 450 && mouseY > 385 && mouseY < 415) {
+  if (gameState == 0 && mouseX > 350 && mouseX < 450 && mouseY > 385 && mouseY < 415) { // "Start"
+    init();
     gameState = 2;
   }
-  if (gameState == 0 && mouseX > 350 && mouseX < 450 && mouseY > 485 && mouseY < 515) {
+  if (gameState == 0 && mouseX > 350 && mouseX < 450 && mouseY > 485 && mouseY < 515) { // "How to Play"
     gameState = 1;
   }
+  if(gameState == 1 && mouseX > 340 && mouseX < 460 && mouseY > 585 && mouseY < 615) { // "Return to Main Menu"
+    gameState = 0;
+  }
   if(gameState == 3 && mouseX > 350 && mouseX < 450 && mouseY > 385 && mouseY < 415) { // "Play Again"
+    init();
     gameState = 2;
   }
   if(gameState == 3 && mouseX > 340 && mouseX < 460 && mouseY > 485 && mouseY < 515) { // "Return to Main Menu"
