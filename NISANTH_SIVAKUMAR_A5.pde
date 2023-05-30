@@ -1,9 +1,11 @@
 // Space bar press only registered for <1s
 // Get rid of autoformat
-// init() method
 // Score increasing detection
 
+// Stitch 2 of the background pictures together
+
 PImage bird1, bird2, bird3;
+PImage bg;
 
 PVector BirdPosition = new PVector(800/2, 400);
 PVector BirdVelocity = new PVector(0, 0);
@@ -20,18 +22,24 @@ boolean spacePressed = false;
 
 int[] pipeXPos = new int[3];
 int[] pipeHeight = new int[3]; // top of the bottom pipe,
+boolean[] pipeScored = new boolean[3];
 int pipeSpeed = 4;
 int pipeGap = 175; // gap between the top and bottom parts of the pipes
 int pipeWidth = 50;
 
 int playerScore = 0;
 
+int bgX = 0;
+
 void setup() {
   size(800, 800);
 
+  //bird1 = loadImage("https://raw.githubusercontent.com/nisanthsiva/FlappyBird/main/bird1.png?token=GHSAT0AAAAAACDI7HSUEKXULSL3NNQXN4RMZDV547Q");
   bird1 = loadImage("bird1.png");
   bird2 = loadImage("bird2.png");
   bird3 = loadImage("bird3.png");
+
+  bg = loadImage("background.jpg");
 
   init();
 
@@ -78,6 +86,7 @@ void instructions() {
 }
 
 void game() {
+  //movingBackground();
   drawBird();
   moveBird();
   drawPipes();
@@ -94,7 +103,8 @@ void game() {
 
 void gameover() {
   background(#000000);
-  text("Game Over", 400, 400);
+  fill(#FFFFFF);
+  text("Game Over", 400, 300);
   
   fill(#FFFFFF);
   rect(350,385,100,30);
@@ -112,12 +122,23 @@ void init() {
   resetPipes();
 }
 
+void movingBackground() {
+  image(bg,bgX+bg.width/2,400);
+  bgX -= 5;
+  if(bgX < -40) {
+    bgX = 0;
+  }
+}
+
 void resetPipes() {
   for (int i = 0; i < 3; i++) {
     pipeXPos[i] = i*300 + 800;
   }
   for (int i = 0; i < 3; i++) {
     pipeHeight[i] = i*100 + 100;
+  }
+  for(int i = 0; i < 3; i++) {
+    pipeScored[i] = false;
   }
 }
 
@@ -179,6 +200,7 @@ void spawnNewPipes() {
     if (pipeXPos[i]+pipeWidth <= 0) {
       pipeXPos[i] = width+pipeWidth;
       pipeHeight[i] = int(random(100, 700));
+      pipeScored[i] = false;
     }
   }
 }
@@ -196,8 +218,9 @@ void checkBirdCollision() {
 
 void score() {
   for(int i = 0; i < 3; i++) {
-    if(BirdPosition.x - birdWidth >= pipeXPos[i]+pipeWidth) {
+    if(pipeXPos[i] <= width/2 && !pipeScored[i]) {
       playerScore++;
+      pipeScored[i] = true;
     }
   }
 }
