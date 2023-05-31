@@ -1,17 +1,16 @@
 // Space bar press only registered for <1s
 // Get rid of autoformat
-// Score increasing detection
-
-// Stitch 2 of the background pictures together
 
 PImage bird1, bird2, bird3;
 PImage bg;
+PImage logo;
 
 PVector BirdPosition = new PVector(800/2, 400);
 PVector BirdVelocity = new PVector(0, 0);
 PVector BirdAcceleration = new PVector(0, 0); // Starts accelerating after original movement
 //PVector birdAcceleration = new PVector(0,4.9); //Makes the bird fall immeditaly when starting
-int birdWidth = 69, birdHeight = 50;
+//int birdWidth = 69, birdHeight = 50;
+int birdWidth = 59, birdHeight = 40;
 
 int animationState = 0;
 int gameState = 0; // 0 = menu, 1 = instructions, 2 = game, 3 = endgame
@@ -20,9 +19,10 @@ int animationTimer;
 int spaceTimer;
 boolean spacePressed = false;
 
-int[] pipeXPos = new int[3];
-int[] pipeHeight = new int[3]; // top of the bottom pipe,
-boolean[] pipeScored = new boolean[3];
+int numOfPipes = 3;
+int[] pipeXPos = new int[numOfPipes];
+int[] pipeHeight = new int[numOfPipes]; // top of the bottom pipe,
+boolean[] pipeScored = new boolean[numOfPipes];
 int pipeSpeed = 4;
 int pipeGap = 175; // gap between the top and bottom parts of the pipes
 int pipeWidth = 50;
@@ -38,8 +38,14 @@ void setup() {
   bird1 = loadImage("bird1.png");
   bird2 = loadImage("bird2.png");
   bird3 = loadImage("bird3.png");
+  
+  bird1.resize(59,40);
+  bird2.resize(59,40);
+  bird3.resize(59,40);
 
   bg = loadImage("background.jpg");
+  
+  logo = loadImage("logo.png");
 
   init();
 
@@ -65,7 +71,7 @@ void draw() {
 
 void mainMenu() {
   background(#000000);
-  // Add logo
+  image(logo,400,200);
 
   // Buttons to start game / instructions
   fill(#FFFFFF);
@@ -86,7 +92,7 @@ void instructions() {
 }
 
 void game() {
-  //movingBackground();
+  movingBackground();
   drawBird();
   moveBird();
   drawPipes();
@@ -123,21 +129,24 @@ void init() {
 }
 
 void movingBackground() {
-  image(bg,bgX+bg.width/2,400);
-  bgX -= 5;
-  if(bgX < -40) {
+  imageMode(CORNER);
+  image(bg,bgX,0);
+  image(bg,bgX+bg.width,0);
+  bgX -= 4;
+  if(bgX < -bg.width) {
     bgX = 0;
   }
+  imageMode(CENTER);
 }
 
 void resetPipes() {
-  for (int i = 0; i < 3; i++) {
-    pipeXPos[i] = i*300 + 800;
+  for (int i = 0; i < numOfPipes; i++) {
+    pipeXPos[i] = i*400 + 800;
   }
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < numOfPipes; i++) {
     pipeHeight[i] = i*100 + 100;
   }
-  for(int i = 0; i < 3; i++) {
+  for(int i = 0; i < numOfPipes; i++) {
     pipeScored[i] = false;
   }
 }
@@ -153,7 +162,7 @@ void drawBird() {
     image(bird2, BirdPosition.x, BirdPosition.y);
   }
 
-  if (millis() - animationTimer > 500) {
+  if (millis() - animationTimer > 250) {
     if (animationState < 3) {
       animationState++;
     } else {
@@ -179,34 +188,38 @@ void moveBird() {
     BirdAcceleration.y = 0;
     BirdPosition.y = 800 - birdHeight/2;
   }
+  if (BirdPosition.y - birdHeight/2 < 0) {
+    BirdVelocity.y = 0;
+    BirdPosition.y = 0 + birdHeight/2;
+    }
 }
 
 void drawPipes() {
   fill(#03FF3F);
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < numOfPipes; i++) {
     rect(pipeXPos[i], height-pipeHeight[i], pipeWidth, pipeHeight[i]); // bottom half of pipe
     rect(pipeXPos[i], 0, pipeWidth, height-pipeHeight[i]-pipeGap); // top half of pipe
   }
 }
 
 void movePipes() {
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < numOfPipes; i++) {
     pipeXPos[i] -= pipeSpeed;
   }
 }
 
 void spawnNewPipes() {
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < numOfPipes; i++) {
     if (pipeXPos[i]+pipeWidth <= 0) {
-      pipeXPos[i] = width+pipeWidth;
-      pipeHeight[i] = int(random(100, 700));
+      pipeXPos[i] = width+400;
+      pipeHeight[i] = int(random(200, 700));
       pipeScored[i] = false;
     }
   }
 }
 
 void checkBirdCollision() {
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < numOfPipes; i++) {
     //if(abs(pipeXPos[i]-BirdPosition.x+birdWidth/2) < 65 &&
     if (abs(pipeXPos[i]-BirdPosition.x+birdWidth/2) < birdWidth && 
       (BirdPosition.y + birdHeight/2 > height-pipeHeight[i] || BirdPosition.y - birdHeight/2 < height-pipeHeight[i]-pipeGap)) {
@@ -217,7 +230,7 @@ void checkBirdCollision() {
 }
 
 void score() {
-  for(int i = 0; i < 3; i++) {
+  for(int i = 0; i < numOfPipes; i++) {
     if(pipeXPos[i] <= width/2 && !pipeScored[i]) {
       playerScore++;
       pipeScored[i] = true;
@@ -227,6 +240,10 @@ void score() {
 
 void drawScore() {
   println(playerScore);
+  fill(#FFFFFF);
+  textSize(24);
+  text("Score: " + playerScore,50,50);
+  textSize(12);
 }
 
 void keyPressed() {
