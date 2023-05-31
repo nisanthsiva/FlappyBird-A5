@@ -1,4 +1,4 @@
-// Space bar press only registered for <1s
+// Add pipe PImage
 // Get rid of autoformat
 
 PImage bird1, bird2, bird3;
@@ -56,7 +56,7 @@ void setup() {
   init();
 
   imageMode(CENTER);
-  textAlign(CENTER);
+  textAlign(CENTER,CENTER);
 }
 
 void draw() {
@@ -81,8 +81,10 @@ void mainMenu() {
 
   // Buttons to start game / instructions
   fill(#FFFFFF);
-  rect(350, 385, 100, 30);
-  rect(350, 485, 100, 30);
+  rectMode(CENTER);
+  rect(400, 400, 100, 30);
+  rect(400, 500, 100, 30);
+  rectMode(CORNER);
   fill(#000000);
   text("Start", 400, 400);
   text("How To Play", 400, 500);
@@ -92,7 +94,9 @@ void instructions() {
   background(#000000);
   // Add "How to play"
   fill(#FFFFFF);
-  rect(340,585,120,30);
+  rectMode(CENTER);
+  rect(400,600,120,30);
+  rectMode(CORNER);
   fill(#000000);
   text("Return to Main Menu",400,600);
 }
@@ -125,8 +129,10 @@ void gameover() {
   text("Game Over", 400, 300);
   
   fill(#FFFFFF);
-  rect(350,385,100,30);
-  rect(340,485,120,30);
+  rectMode(CENTER);
+  rect(400,400,100,30);
+  rect(400,500,120,30);
+  rectMode(CORNER);
   
   fill(#000000);
   text("Play Again",400,400);
