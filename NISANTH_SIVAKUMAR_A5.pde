@@ -23,13 +23,18 @@ int numOfPipes = 3;
 int[] pipeXPos = new int[numOfPipes];
 int[] pipeHeight = new int[numOfPipes]; // top of the bottom pipe,
 boolean[] pipeScored = new boolean[numOfPipes];
-int pipeSpeed = 4;
-int pipeGap = 175; // gap between the top and bottom parts of the pipes
+float pipeSpeed = 4;
+int pipeGap = 200; // gap between the top and bottom parts of the pipes
 int pipeWidth = 50;
 
 int playerScore = 0;
 
 int bgX = 0;
+float bgSpeed = 4;
+
+int collisionOffset = 10;
+
+int[] highscore = new int[1];
 
 void setup() {
   size(800, 800);
@@ -39,11 +44,12 @@ void setup() {
   bird2 = loadImage("bird2.png");
   bird3 = loadImage("bird3.png");
   
-  bird1.resize(59,40);
-  bird2.resize(59,40);
-  bird3.resize(59,40);
+  bird1.resize(birdWidth,birdHeight);
+  bird2.resize(birdWidth,birdHeight);
+  bird3.resize(birdWidth,birdHeight);
 
   bg = loadImage("background.jpg");
+  //bg = loadImage("https://raw.githubusercontent.com/nisanthsiva/FlappyBird/main/background.jpg?token=GHSAT0AAAAAACDKQMXDTWWQRAIAKMXHHZYWZDXHIFQ");
   
   logo = loadImage("logo.png");
 
@@ -54,7 +60,6 @@ void setup() {
 }
 
 void draw() {
-  background(#000000);
   if (gameState == 0) {
     mainMenu();
   } 
@@ -70,7 +75,8 @@ void draw() {
 }
 
 void mainMenu() {
-  background(#000000);
+  //background(#000000);
+  background(#17F9FF);
   image(logo,400,200);
 
   // Buttons to start game / instructions
@@ -93,21 +99,27 @@ void instructions() {
 
 void game() {
   movingBackground();
-  drawBird();
+  //drawBird();
   moveBird();
   drawPipes();
   movePipes();
   spawnNewPipes();
   checkBirdCollision();
   score();
-  drawScore();
+  drawScores();
 
-  // Test for changing the rotation angle of the bird based on velocity/acceleration
-  //translate(400,400);
-  //rotate(radians(45));
+  // Changing the rotation angle of the bird based on velocity
+  translate(BirdPosition.x,BirdPosition.y);
+  rotate(radians(BirdVelocity.y));
+  drawBird(0,0);
 }
 
 void gameover() {
+  if(playerScore > highscore[0]) {
+    highscore[0] = playerScore;
+    saveStrings("highscore.txt",str(highscore));
+  }
+  init();
   background(#000000);
   fill(#FFFFFF);
   text("Game Over", 400, 300);
@@ -124,6 +136,8 @@ void gameover() {
 void init() {
   playerScore = 0;
   BirdPosition.y = 400;
+  pipeSpeed = 4;
+  bgSpeed = 4;
   
   resetPipes();
 }
@@ -132,7 +146,7 @@ void movingBackground() {
   imageMode(CORNER);
   image(bg,bgX,0);
   image(bg,bgX+bg.width,0);
-  bgX -= 4;
+  bgX -= bgSpeed;
   if(bgX < -bg.width) {
     bgX = 0;
   }
@@ -151,15 +165,36 @@ void resetPipes() {
   }
 }
 
-void drawBird() {
+//void drawBird() {
+//  if (animationState == 0) {
+//    image(bird1, BirdPosition.x, BirdPosition.y);
+//  } else if (animationState == 1) {
+//    image(bird2, BirdPosition.x, BirdPosition.y);
+//  } else if (animationState == 2) {
+//    image(bird3, BirdPosition.x, BirdPosition.y);
+//  } else if (animationState == 3) {
+//    image(bird2, BirdPosition.x, BirdPosition.y);
+//  }
+
+//  if (millis() - animationTimer > 250) {
+//    if (animationState < 3) {
+//      animationState++;
+//    } else {
+//      animationState = 0;
+//    }
+//    animationTimer = millis();
+//  }
+//}
+
+void drawBird(int x, int y) {
   if (animationState == 0) {
-    image(bird1, BirdPosition.x, BirdPosition.y);
+    image(bird1, x, y);
   } else if (animationState == 1) {
-    image(bird2, BirdPosition.x, BirdPosition.y);
+    image(bird2, x, y);
   } else if (animationState == 2) {
-    image(bird3, BirdPosition.x, BirdPosition.y);
+    image(bird3, x, y);
   } else if (animationState == 3) {
-    image(bird2, BirdPosition.x, BirdPosition.y);
+    image(bird2, x, y);
   }
 
   if (millis() - animationTimer > 250) {
@@ -222,9 +257,9 @@ void checkBirdCollision() {
   for (int i = 0; i < numOfPipes; i++) {
     //if(abs(pipeXPos[i]-BirdPosition.x+birdWidth/2) < 65 &&
     if (abs(pipeXPos[i]-BirdPosition.x+birdWidth/2) < birdWidth && 
-      (BirdPosition.y + birdHeight/2 > height-pipeHeight[i] || BirdPosition.y - birdHeight/2 < height-pipeHeight[i]-pipeGap)) {
-      gameState = 3;                                                       // ^ Change to + for better detection
-      init();
+      (BirdPosition.y + birdHeight/2 > height-pipeHeight[i] + collisionOffset || BirdPosition.y - birdHeight/2 < height-pipeHeight[i]-pipeGap  - collisionOffset)) {
+      gameState = 3;                                                     
+      //init();
     }
   }
 }
@@ -234,15 +269,18 @@ void score() {
     if(pipeXPos[i] <= width/2 && !pipeScored[i]) {
       playerScore++;
       pipeScored[i] = true;
+      pipeSpeed += 0.05;
+      bgSpeed += 0.05;
     }
   }
 }
 
-void drawScore() {
-  println(playerScore);
+void drawScores() {
+  highscore = int(loadStrings("highscore.txt"));
   fill(#FFFFFF);
   textSize(24);
   text("Score: " + playerScore,50,50);
+  text("High Score: " + highscore[0],700,50);
   textSize(12);
 }
 
