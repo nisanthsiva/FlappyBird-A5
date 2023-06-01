@@ -92,8 +92,12 @@ void mainMenu() {
 
 void instructions() {
   background(#000000);
-  // Add "How to play"
   fill(#FFFFFF);
+  textSize(24);
+  text("Game ends if you hit a pipe",400,400);
+  text("Fly between the gaps in the pipes",400,450);
+  text("Spacebar to fly",400,500);
+  textSize(12);
   rectMode(CENTER);
   rect(400,600,120,30);
   rectMode(CORNER);
