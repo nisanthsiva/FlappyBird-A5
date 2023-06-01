@@ -74,20 +74,42 @@ void draw() {
   }
 }
 
-void mainMenu() {
-  //background(#000000);
-  background(#17F9FF);
-  image(logo,400,200);
+//void mainMenu() {
+//  //background(#000000);
+//  background(#17F9FF);
+//  image(logo,400,200);
 
-  // Buttons to start game / instructions
+//  // Buttons to start game / instructions
+//  fill(#FFFFFF);
+//  rectMode(CENTER);
+//  rect(400, 400, 100, 30);
+//  rect(400, 500, 100, 30);
+//  rectMode(CORNER);
+//  fill(#000000);
+//  text("Start", 400, 400);
+//  text("How To Play", 400, 500);
+//}
+
+void mainMenu() {
+  movingBackground();
+  
+  image(logo,400,200);
   fill(#FFFFFF);
   rectMode(CENTER);
-  rect(400, 400, 100, 30);
-  rect(400, 500, 100, 30);
+  rect(400, 550, 100, 30);
   rectMode(CORNER);
   fill(#000000);
-  text("Start", 400, 400);
-  text("How To Play", 400, 500);
+  textSize(24);
+  text("Press Space to Start", 400, 480);
+  textSize(12);
+  text("How To Play", 400, 550);
+  
+  drawBird(400,400);
+  
+  if(spacePressed) {
+    init();
+    gameState = 2;
+  }
 }
 
 void instructions() {
@@ -307,11 +329,11 @@ void keyReleased() {
 }
 
 void mousePressed() {
-  if (gameState == 0 && mouseX > 350 && mouseX < 450 && mouseY > 385 && mouseY < 415) { // "Start"
-    init();
-    gameState = 2;
-  }
-  if (gameState == 0 && mouseX > 350 && mouseX < 450 && mouseY > 485 && mouseY < 515) { // "How to Play"
+  //if (gameState == 0 && mouseX > 350 && mouseX < 450 && mouseY > 385 && mouseY < 415) { // "Start"
+  //  init();
+  //  gameState = 2;
+  //}
+  if (gameState == 0 && mouseX > 350 && mouseX < 450 && mouseY > 535 && mouseY < 565) { // "How to Play"
     gameState = 1;
   }
   if(gameState == 1 && mouseX > 340 && mouseX < 460 && mouseY > 585 && mouseY < 615) { // "Return to Main Menu"
