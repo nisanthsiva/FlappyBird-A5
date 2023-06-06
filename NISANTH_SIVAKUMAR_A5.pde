@@ -29,7 +29,6 @@ int gameState = 0; // 0 = menu, 1 = instructions, 2 = game, 3 = endgame
 
 // Time control variable
 int animationTimer;
-int spaceTimer;
 
 // Boolean switch variable for spacebar
 boolean spacePressed = false;
